@@ -5,17 +5,17 @@ public:
   typedef SimpleVector<T> Vec;
   typedef SimpleMatrix<T> Mat;
   typedef struct {
-    Vec<T> g;
+    SimpleVector<T> g;
     T i;
   } sensors_t;
 
   inline Sonar();
   inline Sonar(const int& density);
   inline ~Sonar();
-  vector<vector<vector<T> > > volumes(const vector<sensors_t>& in) const;
+  vector<vector<vector<T> > > volumes(vector<sensors_t> in) const;
 
 private:
-  inline T diversity2(const sensors_t& p0, const sensors_t& p1, const Vec& g) const;
+  inline T diversity3(const sensors_t& p0, const sensors_t& p1, const sensors_t& p2, const Vec& g) const;
   int density;
 };
 
@@ -35,12 +35,10 @@ template <typename T> inline Sonar<T>::~Sonar() {
 template <typename T> vector<vector<vector<T> > > Sonar<T>::volumes(vector<sensors_t> in) const {
   assert(5 <= in.size());
   // get edges:
-  vector<T> M;
-  M.reserve(3);
+  Vec M(3);
   assert(in[0].g.size() == 3);
-  M.emplace_back(in[0].g[0]);
-  M.emplace_back(in[0].g[1]);
-  M.emplace_back(in[0].g[2]);
+  for(int i = 0; i < M.size(); i ++)
+    M[i] = in[0].g[i];
   auto m(M);
   for(int i = 1; i < in.size(); i ++) {
     assert(in[i].g.size() == 3);
@@ -49,8 +47,8 @@ template <typename T> vector<vector<vector<T> > > Sonar<T>::volumes(vector<senso
       m[j] = min(m[j], in[i].g[j]);
     }
   }
-  auto g((M + m) / T(2));
-  auto MM(0);
+  const auto g((M + m) / T(2));
+        T    MM(0);
   for(int i = 0; i < M.size(); i ++)
     MM = max(MM, max(M[i] - g[i], g[i] - m[i]));
   for(int i = 0; i < in.size(); i ++)
@@ -68,20 +66,21 @@ template <typename T> vector<vector<vector<T> > > Sonar<T>::volumes(vector<senso
       T   avg(0);
       int cnt(0);
       for(int ii = 0; ii < in.size(); ii ++)
-        for(int jj = ii + 1; jj < in.size(); jj ++) {
-          avg += diversity2(in[i], in[j], gg);
-          cnt ++;
-        }
+        for(int jj = ii + 1; jj < in.size(); jj ++)
+          for(int kk = jj + 1; kk < in.size(); kk ++) {
+            avg += diversity3(in[ii], in[jj], in[kk], gg);
+            cnt ++;
+          }
       avg /= T(cnt);
     }
   }
-  // radon:
+  // inverse field:
   vector<vector<vector<T> > > result;
   return result;
 }
 
-template <typename T> inline T Sonar<T>::diversity2(const sensors_t& p0, const sensors_t& p1, const Vec& g) const {
-  
+template <typename T> inline T Sonar<T>::diversity3(const sensors_t& p0, const sensors_t& p1, const sensors_t& p2, const Vec& g) const {
+  T result(0);
   return result;
 }
 

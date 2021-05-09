@@ -13,13 +13,13 @@ typedef myfloat num_t;
 #include "sonar.hh"
 
 int main(int argc, const char* argv[]) {
-  vector<RGW<double>::sensors_t> sensors;
+  vector<typename Sonar<num_t>::sensors_t> sensors;
   for(int i = 0; i < argc; i ++) {
-    RGW<double>::sensors_t work;
-    sensors.push_back(work);
+    typename Sonar<num_t>::sensors_t work;
+    sensors.emplace_back(work);
   }
-  RGW<double> rgw;
-  auto volumes(rgw.volumes(sensors));
+  Sonar<num_t> sonar;
+  auto volumes(sonar.volumes(sensors));
   return 0;
 }
 
